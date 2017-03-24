@@ -1,4 +1,4 @@
-package StatsD::XS;
+package StatsD::XS 0.001;
 
 use strict;
 use warnings;
@@ -7,13 +7,16 @@ use B;
 use IO::Socket::INET;
 use Sys::Hostname;
 use Time::HiRes;
+use XSLoader;
 
 use constant HOST_SUFFIX => '.' . hostname;
+
+XSLoader::load();
 
 # Allow callers to add stats relative to host.
 our $AlsoAppendHost;
 
-our $Host = 'localhost';
+our $Host = '127.0.0.1';
 our $Port = 8125;
 
 sub import {
