@@ -88,6 +88,22 @@ sub timer { bless \(Time::HiRes::time), 'StatsD::XS::Timer' }
 
 sub timing {
     my ( $name, $value, $sample ) = @_;
+
+    my $sock = IO::Socket::INET->new(
+        Proto    => 'udp',
+        PeerAddr => $Host,
+        PeerPort => $Port,
+    ) or return;
+
+    $value = int $value;
+
+    my $metric = "$name:$value|ms\n";
+
+    $metric .= $name . HOST_SUFFIX . ":$value|ms\n" if $AlsoAppendHost;
+
+    send $sock, $metric, 0;
+
+    return;
 }
 
 package StatsD::XS::Timer;
