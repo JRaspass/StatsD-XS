@@ -106,7 +106,8 @@ timer()
 
         AV *av = newAV();
 
-        SV **ary = safemalloc(2 * sizeof(SV*));
+        SV **ary;
+        Newx(ary, 2, SV*);
 
         AvALLOC(av) = AvARRAY(av) = ary;
         AvFILLp(av) = AvMAX(av)   = 1;
