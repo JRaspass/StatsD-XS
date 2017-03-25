@@ -54,8 +54,6 @@ void send_msg(SV *name, int value, char* type) {
 
 MODULE = StatsD::XS PACKAGE = StatsD::XS
 
-PROTOTYPES: DISABLE
-
 BOOT:
     gethostname(hostname, sizeof(hostname) - 1);
 
