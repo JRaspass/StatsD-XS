@@ -1,9 +1,8 @@
 #define PERL_NO_GET_CONTEXT
 
-#include "EXTERN.h"
-#include "perl.h"
-#include "XSUB.h"
-
+#include <EXTERN.h>
+#include <XSUB.h>
+#include <perl.h>
 #include <time.h>
 
 MODULE = StatsD::XS PACKAGE = StatsD::XS
