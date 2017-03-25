@@ -6,6 +6,7 @@
 #include <time.h>
 
 char hostname[64];
+HV *pkg;
 
 void send_msg(pTHX_ SV *name, int value, char* type) {
     char *name_char = SvPV_nomg_nolen(name);
@@ -56,6 +57,7 @@ MODULE = StatsD::XS PACKAGE = StatsD::XS
 
 BOOT:
     gethostname(hostname, sizeof(hostname) - 1);
+    pkg = gv_stashpvn("StatsD::XS", 10, 0);
 
 void
 gauge(SV *name, SV *value)
@@ -112,9 +114,6 @@ timer()
         ary[0] = newSViv(ts.tv_sec);
         ary[1] = newSViv(ts.tv_nsec);
 
-        RETVAL = sv_bless(
-            newRV_noinc((SV*)av),
-            gv_stashpv("StatsD::XS", 0)
-        );
+        RETVAL = sv_bless(newRV_noinc((SV*)av), pkg);
     OUTPUT:
           RETVAL
