@@ -6,7 +6,6 @@ use warnings;
 use B;
 use IO::Socket::INET;
 use Sys::Hostname;
-use Time::HiRes;
 use XSLoader;
 
 use constant HOST_SUFFIX => '.' . hostname;
@@ -105,12 +104,6 @@ sub timing {
     send $sock, $metric, 0;
 
     return;
-}
-
-package StatsD::XS::Timer;
-
-sub reset {
-    ${ +shift } = Time::HiRes::time;
 }
 
 1;

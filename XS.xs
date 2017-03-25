@@ -34,6 +34,22 @@ MODULE = StatsD::XS PACKAGE = StatsD::XS::Timer
 PROTOTYPES: DISABLE
 
 SV *
+reset(SV *self)
+    CODE:
+        struct timespec ts;
+
+        clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+
+        AV *start = (AV *)SvRV(self);
+
+        SvIV_set(*av_fetch(start, 0, FALSE), ts.tv_sec);
+        SvIV_set(*av_fetch(start, 1, FALSE), ts.tv_nsec);
+
+        RETVAL = SvREFCNT_inc(self);
+    OUTPUT:
+          RETVAL
+
+SV *
 send(SV *self, SV *name)
     CODE:
         struct timespec ts;
