@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use MockServer;
-use StatsD::XS qw/inc/;
+use StatsD::XS 'inc';
 use Sys::Hostname;
 use Test::More;
 

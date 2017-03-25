@@ -68,24 +68,6 @@ sub import {
     }
 }
 
-sub inc {
-    my ( $name, $sample ) = @_;
-
-    my $sock = IO::Socket::INET->new(
-        Proto    => 'udp',
-        PeerAddr => $Host,
-        PeerPort => $Port,
-    ) or return;
-
-    my $metric = "$name:1|c\n";
-
-    $metric .= $name . HOST_SUFFIX . ":1|c\n" if $AlsoAppendHost;
-
-    send $sock, $metric, 0;
-
-    return;
-}
-
 sub timing {
     my ( $name, $value, $sample ) = @_;
 

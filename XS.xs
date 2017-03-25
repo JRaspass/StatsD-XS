@@ -5,9 +5,54 @@
 #include <perl.h>
 #include <time.h>
 
+void send_msg(char *msg, int msg_len) {
+    struct sockaddr_in address = {
+        AF_INET,
+        htons(    SvIV_nomg(      get_sv("StatsD::XS::Port", 0))),
+        inet_addr(SvPV_nomg_nolen(get_sv("StatsD::XS::Host", 0))),
+    };
+
+    sendto(
+        socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP),
+        msg,
+        msg_len,
+        0,
+        &address,
+        sizeof(struct sockaddr_in)
+    );
+}
+
 MODULE = StatsD::XS PACKAGE = StatsD::XS
 
 PROTOTYPES: DISABLE
+
+void
+inc(SV *name)
+    CODE:
+        char *name_char = SvPV_nomg_nolen(name);
+
+        if (SvTRUE_nomg(get_sv("StatsD::XS::AlsoAppendHost", 0))) {
+            char host[32];
+            gethostname(host, sizeof(host) - 1);
+
+            int msg_len = snprintf(
+                NULL, 0, "%s:1|c\n%s.%s:1|c\n", name_char, name_char, host);
+
+            char *msg = alloca(msg_len);
+
+            sprintf(msg, "%s:1|c\n%s.%s:1|c\n", name_char, name_char, host);
+
+            send_msg(msg, msg_len);
+        }
+        else {
+            int msg_len = snprintf(NULL, 0, "%s:1|c\n", name_char);
+
+            char *msg = alloca(msg_len);
+
+            sprintf(msg, "%s:1|c\n", name_char);
+
+            send_msg(msg, msg_len);
+        }
 
 SV *
 reset(SV *self)
@@ -39,12 +84,6 @@ send(SV *self, SV *name)
 
         uint took = (ts.tv_sec - sec) * 1000 + (ts.tv_nsec - nsec) / 1000000;
 
-        struct sockaddr_in address = {
-            AF_INET,
-            htons(    SvIV_nomg(      get_sv("StatsD::XS::Port", 0))),
-            inet_addr(SvPV_nomg_nolen(get_sv("StatsD::XS::Host", 0))),
-        };
-
         char *name_char = SvPV_nomg_nolen(name);
 
         int msg_len = snprintf(NULL, 0, "%s:%d|ms\n", name_char, took);
@@ -53,14 +92,7 @@ send(SV *self, SV *name)
 
         sprintf(msg, "%s:%d|ms\n", name_char, took);
 
-        sendto(
-            socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP),
-            msg,
-            msg_len,
-            0,
-            &address,
-            sizeof(struct sockaddr_in)
-        );
+        send_msg(msg, msg_len);
 
         RETVAL = SvREFCNT_inc(self);
     OUTPUT:
