@@ -98,7 +98,7 @@ send(SV *self, SV *name)
         send_msg(aTHX_ name, took, "ms");
 
 SV *
-timer()
+timer(...)
     CODE:
         struct timespec ts;
 
