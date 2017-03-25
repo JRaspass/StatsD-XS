@@ -17,7 +17,7 @@ is ref timer, 'StatsD::XS::Timer';
 {
     my $t = timer;
 
-    select undef, undef, undef, .1;
+    select undef, undef, undef, .01;
 
     my @old = @$t;
 
