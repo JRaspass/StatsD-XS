@@ -5,6 +5,8 @@
 #include <perl.h>
 #include <time.h>
 
+char host[32];
+
 void send_msg(char *msg, int msg_len) {
     struct sockaddr_in address = {
         AF_INET,
@@ -26,15 +28,15 @@ MODULE = StatsD::XS PACKAGE = StatsD::XS
 
 PROTOTYPES: DISABLE
 
+BOOT:
+    gethostname(host, sizeof(host) - 1);
+
 void
 inc(SV *name)
     CODE:
         char *name_char = SvPV_nomg_nolen(name);
 
         if (SvTRUE_nomg(get_sv("StatsD::XS::AlsoAppendHost", 0))) {
-            char host[32];
-            gethostname(host, sizeof(host) - 1);
-
             int msg_len = snprintf(
                 NULL, 0, "%s:1|c\n%s.%s:1|c\n", name_char, name_char, host);
 
