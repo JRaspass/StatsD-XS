@@ -7,31 +7,33 @@
 
 char hostname[32];
 
-void send_msg(char *name, int value, char* type) {
+void send_msg(SV *name, int value, char* type) {
+    char *name_char = SvPV_nomg_nolen(name);
+
     char *msg;
     int msg_len;
 
     if (SvTRUE_nomg(get_sv("StatsD::XS::AlsoAppendHost", 0))) {
         msg_len = snprintf(
             NULL, 0, "%s:%d|%s\n%s.%s:%d|%s\n",
-            name,           value, type,
-            name, hostname, value, type
+            name_char,           value, type,
+            name_char, hostname, value, type
         );
 
         msg = alloca(msg_len);
 
         sprintf(
             msg,  "%s:%d|%s\n%s.%s:%d|%s\n",
-            name,           value, type,
-            name, hostname, value, type
+            name_char,           value, type,
+            name_char, hostname, value, type
         );
     }
     else {
-        msg_len = snprintf(NULL, 0, "%s:%d|%s\n", name, value, type);
+        msg_len = snprintf(NULL, 0, "%s:%d|%s\n", name_char, value, type);
 
         msg = alloca(msg_len);
 
-        sprintf(msg, "%s:%d|%s\n", name, value, type);
+        sprintf(msg, "%s:%d|%s\n", name_char, value, type);
     }
 
     struct sockaddr_in address = {
@@ -60,7 +62,7 @@ BOOT:
 void
 inc(SV *name)
     CODE:
-        send_msg(SvPV_nomg_nolen(name), 1, "c");
+        send_msg(name, 1, "c");
 
 SV *
 reset(SV *self)
@@ -92,7 +94,7 @@ send(SV *self, SV *name)
 
         uint took = (ts.tv_sec - sec) * 1000 + (ts.tv_nsec - nsec) / 1000000;
 
-        send_msg(SvPV_nomg_nolen(name), took, "ms");
+        send_msg(name, took, "ms");
 
         RETVAL = SvREFCNT_inc(self);
     OUTPUT:
