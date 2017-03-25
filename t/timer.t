@@ -25,7 +25,6 @@ is ref timer, 'StatsD::XS';
     is +MockServer->read, "foo:0|ms\nfoo.$host:0|ms\n";
 }
 
-
 {
     my $t = timer;
 
