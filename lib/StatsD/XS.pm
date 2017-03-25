@@ -4,11 +4,7 @@ use strict;
 use warnings;
 
 use B;
-use IO::Socket::INET;
-use Sys::Hostname;
 use XSLoader;
-
-use constant HOST_SUFFIX => '.' . hostname;
 
 XSLoader::load();
 
@@ -66,26 +62,6 @@ sub import {
 
         return @unhandled;
     }
-}
-
-sub timing {
-    my ( $name, $value, $sample ) = @_;
-
-    my $sock = IO::Socket::INET->new(
-        Proto    => 'udp',
-        PeerAddr => $Host,
-        PeerPort => $Port,
-    ) or return;
-
-    $value = int $value;
-
-    my $metric = "$name:$value|ms\n";
-
-    $metric .= $name . HOST_SUFFIX . ":$value|ms\n" if $AlsoAppendHost;
-
-    send $sock, $metric, 0;
-
-    return;
 }
 
 1;
