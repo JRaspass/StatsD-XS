@@ -58,6 +58,11 @@ BOOT:
     gethostname(hostname, sizeof(hostname) - 1);
 
 void
+gauge(SV *name, SV *value)
+    CODE:
+        send_msg(aTHX_ name, SvIV_nomg(value), "g");
+
+void
 inc(SV *name)
     CODE:
         send_msg(aTHX_ name, 1, "c");
