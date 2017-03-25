@@ -1,7 +1,12 @@
 [
+    reset => {
+        desc  => '',
+        setup => 'use blib; use StatsD::XS "timer"; my $t = timer',
+        code  => '$t->reset',
+    },
     timer => {
-        desc  => 'timer',
+        desc  => '',
         setup => 'use blib; use StatsD::XS "timer"',
-        code  => 'timer()',
+        code  => 'timer',
     },
 ];
