@@ -67,7 +67,7 @@ inc(SV *name)
     CODE:
         send_msg(aTHX_ name, 1, "c");
 
-SV *
+void
 reset(SV *self)
     CODE:
         struct timespec ts;
@@ -79,11 +79,7 @@ reset(SV *self)
         SvIV_set(start[0], ts.tv_sec);
         SvIV_set(start[1], ts.tv_nsec);
 
-        RETVAL = SvREFCNT_inc(self);
-    OUTPUT:
-          RETVAL
-
-SV *
+void
 send(SV *self, SV *name)
     CODE:
         struct timespec ts;
@@ -98,10 +94,6 @@ send(SV *self, SV *name)
         uint took = (ts.tv_sec - sec) * 1000 + (ts.tv_nsec - nsec) / 1000000;
 
         send_msg(aTHX_ name, took, "ms");
-
-        RETVAL = SvREFCNT_inc(self);
-    OUTPUT:
-          RETVAL
 
 SV *
 timer()
