@@ -17,13 +17,21 @@ timer()
 
         clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
 
-        AV *av = newAV();
+        AV *self = newAV();
 
-        av_push(av, newSViv(ts.tv_sec));
-        av_push(av, newSViv(ts.tv_nsec));
+        // Extend to index 1 (size 2).
+        av_extend(self, 1);
+
+        SV **start = AvARRAY(self);
+
+        start[0] = newSViv(ts.tv_sec);
+        start[1] = newSViv(ts.tv_nsec);
+
+        // Set length to index 1 (size 2).
+        AvFILLp(self) = 1;
 
         RETVAL = sv_bless(
-            newRV_noinc((SV*)av),
+            newRV_noinc((SV*)self),
             gv_stashpv("StatsD::XS::Timer", 0)
         );
     OUTPUT:
