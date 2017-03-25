@@ -3,15 +3,13 @@ use strict;
 use warnings;
 
 use MockServer;
-use StatsD::XS 'timer2';
+use StatsD::XS 'timer';
 use Test::More;
 
-my $timer = timer2;
+is ref timer, 'StatsD::XS::Timer';
 
-is ref $timer, 'StatsD::XS::Timer';
+timer->send('foo');
 
-$timer->send2;
-
-is +MockServer->read, "foo\n";
+is +MockServer->read, "foo:0|ms\n";
 
 done_testing;

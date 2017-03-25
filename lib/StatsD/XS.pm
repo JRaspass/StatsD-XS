@@ -87,8 +87,6 @@ sub inc {
     return;
 }
 
-sub timer { bless \(Time::HiRes::time), 'StatsD::XS::Timer' }
-
 sub timing {
     my ( $name, $value, $sample ) = @_;
 
@@ -115,13 +113,4 @@ sub reset {
     ${ +shift } = Time::HiRes::time;
 }
 
-sub send {
-    my ( $self, $name, $sample ) = @_;
-
-    my $interval = ( Time::HiRes::time - $$self ) * 1_000;
-
-    StatsD::XS::timing( $name, $interval, $sample );
-
-    $self;
-}
 1;

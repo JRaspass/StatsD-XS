@@ -11,7 +11,7 @@ MODULE = StatsD::XS PACKAGE = StatsD::XS
 PROTOTYPES: DISABLE
 
 SV *
-timer2()
+timer()
     CODE:
         struct timespec ts;
 
@@ -34,7 +34,7 @@ MODULE = StatsD::XS PACKAGE = StatsD::XS::Timer
 PROTOTYPES: DISABLE
 
 SV *
-send2(SV *self)
+send(SV *self, SV *name)
     CODE:
         struct timespec ts;
 
@@ -47,20 +47,24 @@ send2(SV *self)
 
         uint took = (ts.tv_sec - sec) * 1000 + (ts.tv_nsec - nsec) / 1000000;
 
-        fprintf(stderr, "took %d\n", took);
-
         struct sockaddr_in address = {
             AF_INET,
-            htons(SvIV(get_sv("StatsD::XS::Port", 0))),
+            htons(    SvIV_nomg(      get_sv("StatsD::XS::Port", 0))),
             inet_addr(SvPV_nomg_nolen(get_sv("StatsD::XS::Host", 0))),
         };
 
-        char *data = "foo\n";
+        char *name_char = SvPV_nomg_nolen(name);
+
+        int msg_len = snprintf(NULL, 0, "%s:%d|ms\n", name_char, took);
+
+        char *msg = alloca(msg_len);
+
+        sprintf(msg, "%s:%d|ms\n", name_char, took);
 
         sendto(
             socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP),
-            data,
-            strlen(data),
+            msg,
+            msg_len,
             0,
             &address,
             sizeof(struct sockaddr_in)
