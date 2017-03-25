@@ -5,9 +5,35 @@
 #include <perl.h>
 #include <time.h>
 
-char host[32];
+char hostname[32];
 
-void send_msg(char *msg, int msg_len) {
+void send_msg(char *name, int value, char* type) {
+    char *msg;
+    int msg_len;
+
+    if (SvTRUE_nomg(get_sv("StatsD::XS::AlsoAppendHost", 0))) {
+        msg_len = snprintf(
+            NULL, 0, "%s:%d|%s\n%s.%s:%d|%s\n",
+            name,           value, type,
+            name, hostname, value, type
+        );
+
+        msg = alloca(msg_len);
+
+        sprintf(
+            msg,  "%s:%d|%s\n%s.%s:%d|%s\n",
+            name,           value, type,
+            name, hostname, value, type
+        );
+    }
+    else {
+        msg_len = snprintf(NULL, 0, "%s:%d|%s\n", name, value, type);
+
+        msg = alloca(msg_len);
+
+        sprintf(msg, "%s:%d|%s\n", name, value, type);
+    }
+
     struct sockaddr_in address = {
         AF_INET,
         htons(    SvIV_nomg(      get_sv("StatsD::XS::Port", 0))),
@@ -29,32 +55,12 @@ MODULE = StatsD::XS PACKAGE = StatsD::XS
 PROTOTYPES: DISABLE
 
 BOOT:
-    gethostname(host, sizeof(host) - 1);
+    gethostname(hostname, sizeof(hostname) - 1);
 
 void
 inc(SV *name)
     CODE:
-        char *name_char = SvPV_nomg_nolen(name);
-
-        if (SvTRUE_nomg(get_sv("StatsD::XS::AlsoAppendHost", 0))) {
-            int msg_len = snprintf(
-                NULL, 0, "%s:1|c\n%s.%s:1|c\n", name_char, name_char, host);
-
-            char *msg = alloca(msg_len);
-
-            sprintf(msg, "%s:1|c\n%s.%s:1|c\n", name_char, name_char, host);
-
-            send_msg(msg, msg_len);
-        }
-        else {
-            int msg_len = snprintf(NULL, 0, "%s:1|c\n", name_char);
-
-            char *msg = alloca(msg_len);
-
-            sprintf(msg, "%s:1|c\n", name_char);
-
-            send_msg(msg, msg_len);
-        }
+        send_msg(SvPV_nomg_nolen(name), 1, "c");
 
 SV *
 reset(SV *self)
@@ -86,15 +92,7 @@ send(SV *self, SV *name)
 
         uint took = (ts.tv_sec - sec) * 1000 + (ts.tv_nsec - nsec) / 1000000;
 
-        char *name_char = SvPV_nomg_nolen(name);
-
-        int msg_len = snprintf(NULL, 0, "%s:%d|ms\n", name_char, took);
-
-        char *msg = alloca(msg_len);
-
-        sprintf(msg, "%s:%d|ms\n", name_char, took);
-
-        send_msg(msg, msg_len);
+        send_msg(SvPV_nomg_nolen(name), took, "ms");
 
         RETVAL = SvREFCNT_inc(self);
     OUTPUT:

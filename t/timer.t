@@ -4,7 +4,10 @@ use warnings;
 
 use MockServer;
 use StatsD::XS 'timer';
+use Sys::Hostname;
 use Test::More;
+
+my $host = hostname;
 
 is ref timer, 'StatsD::XS';
 
@@ -13,6 +16,15 @@ is ref timer, 'StatsD::XS';
 
     is +MockServer->read, "foo:0|ms\n";
 }
+
+{
+    local $StatsD::XS::AlsoAppendHost = 1;
+
+    timer->send('foo');
+
+    is +MockServer->read, "foo:0|ms\nfoo.$host:0|ms\n";
+}
+
 
 {
     my $t = timer;
