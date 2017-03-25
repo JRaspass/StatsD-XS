@@ -5,7 +5,7 @@
 #include <perl.h>
 #include <time.h>
 
-char hostname[32];
+char hostname[64];
 
 void send_msg(SV *name, int value, char* type) {
     char *name_char = SvPV_nomg_nolen(name);
