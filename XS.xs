@@ -110,21 +110,18 @@ timer()
 
         clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
 
-        AV *self = newAV();
+        AV *av = newAV();
 
-        // Extend to index 1 (size 2).
-        av_extend(self, 1);
+        SV **ary = safemalloc(2 * sizeof(SV*));
 
-        SV **start = AvARRAY(self);
+        AvALLOC(av) = AvARRAY(av) = ary;
+        AvFILLp(av) = AvMAX(av)   = 1;
 
-        start[0] = newSViv(ts.tv_sec);
-        start[1] = newSViv(ts.tv_nsec);
-
-        // Set length to index 1 (size 2).
-        AvFILLp(self) = 1;
+        ary[0] = newSViv(ts.tv_sec);
+        ary[1] = newSViv(ts.tv_nsec);
 
         RETVAL = sv_bless(
-            newRV_noinc((SV*)self),
+            newRV_noinc((SV*)av),
             gv_stashpv("StatsD::XS", 0)
         );
     OUTPUT:

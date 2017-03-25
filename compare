@@ -1,0 +1,5 @@
+#!/bin/sh
+
+make
+
+../perl/Porting/bench.pl --read results -- `which perl`=after

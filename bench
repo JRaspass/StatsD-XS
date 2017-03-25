@@ -1,0 +1,5 @@
+#!/bin/sh
+
+make
+
+../perl/Porting/bench.pl --write results -- `which perl`=before

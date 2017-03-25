@@ -1,0 +1,7 @@
+[
+    timer => {
+        desc  => 'timer',
+        setup => 'use blib; use StatsD::XS "timer"',
+        code  => 'timer()',
+    },
+];
