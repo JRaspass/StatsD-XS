@@ -7,7 +7,7 @@
 
 char hostname[64];
 
-void send_msg(SV *name, int value, char* type) {
+void send_msg(pTHX_ SV *name, int value, char* type) {
     char *name_char = SvPV_nomg_nolen(name);
 
     char *msg;
@@ -60,7 +60,7 @@ BOOT:
 void
 inc(SV *name)
     CODE:
-        send_msg(name, 1, "c");
+        send_msg(aTHX_ name, 1, "c");
 
 SV *
 reset(SV *self)
@@ -92,7 +92,7 @@ send(SV *self, SV *name)
 
         uint took = (ts.tv_sec - sec) * 1000 + (ts.tv_nsec - nsec) / 1000000;
 
-        send_msg(name, took, "ms");
+        send_msg(aTHX_ name, took, "ms");
 
         RETVAL = SvREFCNT_inc(self);
     OUTPUT:
