@@ -40,10 +40,10 @@ reset(SV *self)
 
         clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
 
-        AV *start = (AV *)SvRV(self);
+        SV **start = AvARRAY(SvRV(self));
 
-        SvIV_set(*av_fetch(start, 0, FALSE), ts.tv_sec);
-        SvIV_set(*av_fetch(start, 1, FALSE), ts.tv_nsec);
+        SvIV_set(start[0], ts.tv_sec);
+        SvIV_set(start[1], ts.tv_nsec);
 
         RETVAL = SvREFCNT_inc(self);
     OUTPUT:
@@ -56,10 +56,10 @@ send(SV *self, SV *name)
 
         clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
 
-        AV *start = (AV *)SvRV(self);
+        SV **start = AvARRAY(SvRV(self));
 
-        IV sec  = SvIVX(*av_fetch(start, 0, FALSE));
-        IV nsec = SvIVX(*av_fetch(start, 1, FALSE));
+        IV sec  = SvIVX(start[0]);
+        IV nsec = SvIVX(start[1]);
 
         uint took = (ts.tv_sec - sec) * 1000 + (ts.tv_nsec - nsec) / 1000000;
 
