@@ -11,37 +11,6 @@ MODULE = StatsD::XS PACKAGE = StatsD::XS
 PROTOTYPES: DISABLE
 
 SV *
-timer()
-    CODE:
-        struct timespec ts;
-
-        clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
-
-        AV *self = newAV();
-
-        // Extend to index 1 (size 2).
-        av_extend(self, 1);
-
-        SV **start = AvARRAY(self);
-
-        start[0] = newSViv(ts.tv_sec);
-        start[1] = newSViv(ts.tv_nsec);
-
-        // Set length to index 1 (size 2).
-        AvFILLp(self) = 1;
-
-        RETVAL = sv_bless(
-            newRV_noinc((SV*)self),
-            gv_stashpv("StatsD::XS::Timer", 0)
-        );
-    OUTPUT:
-          RETVAL
-
-MODULE = StatsD::XS PACKAGE = StatsD::XS::Timer
-
-PROTOTYPES: DISABLE
-
-SV *
 reset(SV *self)
     CODE:
         struct timespec ts;
@@ -95,5 +64,32 @@ send(SV *self, SV *name)
         );
 
         RETVAL = SvREFCNT_inc(self);
+    OUTPUT:
+          RETVAL
+
+SV *
+timer()
+    CODE:
+        struct timespec ts;
+
+        clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+
+        AV *self = newAV();
+
+        // Extend to index 1 (size 2).
+        av_extend(self, 1);
+
+        SV **start = AvARRAY(self);
+
+        start[0] = newSViv(ts.tv_sec);
+        start[1] = newSViv(ts.tv_nsec);
+
+        // Set length to index 1 (size 2).
+        AvFILLp(self) = 1;
+
+        RETVAL = sv_bless(
+            newRV_noinc((SV*)self),
+            gv_stashpv("StatsD::XS", 0)
+        );
     OUTPUT:
           RETVAL

@@ -6,7 +6,7 @@ use MockServer;
 use StatsD::XS 'timer';
 use Test::More;
 
-is ref timer, 'StatsD::XS::Timer';
+is ref timer, 'StatsD::XS';
 
 {
     timer->send('foo');
