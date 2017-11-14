@@ -43,14 +43,18 @@ void send_msg(pTHX_ SV *name, int value, char* type) {
         inet_addr(SvPV_nomg_nolen(get_sv("StatsD::XS::Host", 0))),
     };
 
+    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
     sendto(
-        socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP),
+        sock,
         msg,
         msg_len,
         0,
         &address,
         sizeof(struct sockaddr_in)
     );
+
+    close(sock);
 }
 
 MODULE = StatsD::XS PACKAGE = StatsD::XS
